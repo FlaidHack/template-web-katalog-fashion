@@ -1,0 +1,367 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Bar from '../components/Bar.astro';
+import {
+  site,
+  hero,
+  favorit,
+  products,
+  about,
+  sizing,
+  faq,
+  contact,
+  rupiah,
+  wa,
+} from '../data/site.js';
+
+const heroLink = wa(`Halo ${site.name}, saya mau tanya koleksi yang tersedia.`);
+const favorits = products.slice(0, 6);
+// Tiga kolom bergeser turun: kolom 1 = item 1,4 — kolom 2 = item 2,5 — kolom 3 = item 3,6.
+const favCols = [0, 1, 2].map((col) =>
+  favorits.map((p, i) => ({ p, i })).filter((x) => x.i % 3 === col)
+);
+---
+
+<Layout>
+  <Bar />
+
+  <main id="isi">
+    <section class="hero" aria-labelledby="judul">
+      <div class="hero-copy">
+        <p class="kicker">{hero.eyebrow}</p>
+        <h1 id="judul">
+          {hero.headline.map((line, i) => (
+            <>
+              {i > 0 && <br />}
+              {line}
+            </>
+          ))}
+        </h1>
+        <p class="hero-lead">{hero.text}</p>
+        <p class="hero-actions">
+          <a class="btn" href="#favorit">{hero.cta}</a>
+          <a class="textlink" href={heroLink}>{hero.secondary}</a>
+        </p>
+      </div>
+      <div
+        class="hero-carousel"
+        data-hero-carousel
+        role="group"
+        aria-roledescription="carousel"
+        aria-label="Pilihan koleksi Mono Fashion"
+      >
+        <div class="hero-stage">
+          {
+            hero.cards.map((card, i) => (
+              <figure
+                class={`hero-card ${i === 0 ? 'is-center' : i === 1 ? 'is-right' : 'is-left'}`}
+                data-card
+                data-label={card.label}
+                data-name={card.name}
+              >
+                <span class="hero-card-tag">{card.label}</span>
+                <img
+                  src={card.image}
+                  alt={card.alt}
+                  width="960"
+                  height="1200"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                />
+              </figure>
+            ))
+          }
+        </div>
+        <div class="hero-carousel-foot">
+          <p class="hero-caption" data-hero-caption>
+            {hero.cards[0].label} — {hero.cards[0].name}
+          </p>
+          <button class="hero-pause" type="button" data-hero-pause aria-label="Jeda gerakan otomatis">
+            Jeda
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="favorit" class="collection" aria-labelledby="favorit-h">
+      <header class="collection-head">
+        <p class="kicker">{favorit.eyebrow}</p>
+        <h2 id="favorit-h">{favorit.heading}</h2>
+        <div class="collection-side">
+          <p>{favorit.text}</p>
+          <a class="textlink" href="/koleksi">Buka semua koleksi</a>
+        </div>
+      </header>
+
+      <div class="lookbook">
+        {
+          favCols.map((items) => (
+            <div class="fav-col">
+              {items.map(({ p, i }) => (
+                <article
+                  class={`look look-${i + 1}`}
+                  data-product={p.name}
+                  data-wa={site.whatsapp}
+                  data-site={site.name}
+                >
+                  <figure class="look-shot">
+                    <img
+                      src={p.image}
+                      alt={`Foto contoh untuk ${p.name}`}
+                      loading="lazy"
+                      width="960"
+                      height="1200"
+                    />
+                  </figure>
+                  <div class="look-meta">
+                    <div class="look-top">
+                      <p class="look-cat">{p.category}</p>
+                      <p class="price">{rupiah(p.price)}</p>
+                    </div>
+                    <h3>{p.name}</h3>
+                    <p class="detail">{p.detail}</p>
+                    <div class="sizes" role="group" aria-label={`Pilih ukuran ${p.name}`}>
+                      {p.sizes.map((s) => {
+                        const out = p.soldOut.includes(s);
+                        return (
+                          <button
+                            type="button"
+                            class="chip"
+                            data-size={s}
+                            aria-pressed="false"
+                            disabled={out}
+                            aria-label={out ? `${s}, habis` : s}
+                          >
+                            {s}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <a
+                      class="order"
+                      data-order
+                      href={wa(`Halo ${site.name}, saya mau tanya stok ${p.name}.`)}
+                    >
+                      <span data-order-text>Tanya stok</span>
+                    </a>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section id="tentang" class="about" aria-labelledby="tentang-h">
+      <div class="about-grid">
+        <div class="about-text">
+          <h2 id="tentang-h">{about.heading}</h2>
+          <p class="statement">{about.statement}</p>
+        </div>
+        <figure class="about-pic">
+          <img src={about.image} alt={about.alt} loading="lazy" width="960" height="1200" />
+        </figure>
+        <div class="facts">
+          {
+            about.facts.map((f) => (
+              <div class="fact">
+                <h3>{f.title}</h3>
+                <p>{f.text}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section id="ukuran" class="sizing" aria-labelledby="ukuran-h">
+      <div class="sizing-text">
+        <h2 id="ukuran-h">{sizing.heading}</h2>
+        <p>{sizing.note}</p>
+      </div>
+      <div class="sizing-table">
+        <table>
+          <caption class="sr">Ukuran baju dalam sentimeter</caption>
+          <thead>
+            <tr>{sizing.head.map((h) => <th scope="col">{h}</th>)}</tr>
+          </thead>
+          <tbody>
+            {
+              sizing.rows.map((r) => (
+                <tr>
+                  <th scope="row">{r[0]}</th>
+                  {r.slice(1).map((c) => (
+                    <td>{c} cm</td>
+                  ))}
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="tanya" class="faq" aria-labelledby="tanya-h">
+      <div class="faq-head">
+        <h2 id="tanya-h">{faq.heading}</h2>
+      </div>
+      <div class="faq-list">
+        {
+          faq.items.map((it) => (
+            <details>
+              <summary>{it.q}</summary>
+              <p>{it.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </section>
+
+    <section id="kontak" class="contact" aria-labelledby="kontak-h">
+      <div class="contact-grid">
+        <div>
+          <h2 id="kontak-h">{contact.heading}</h2>
+          <p class="contact-text">{contact.text}</p>
+          <p>
+            <a class="btn btn-light" href={heroLink}>{contact.cta}</a>
+          </p>
+        </div>
+        <dl class="info">
+          <div><dt>Alamat</dt><dd>{site.address}</dd></div>
+          <div><dt>Jam buka</dt><dd>{site.hours}</dd></div>
+          <div><dt>Instagram</dt><dd>{site.instagram}</dd></div>
+        </dl>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p class="foot-mark" aria-hidden="true">
+      <span class="foot-mono">{site.short}</span>
+      <span class="foot-sub">{site.sub}</span>
+    </p>
+    <div class="foot-bottom">
+      <p class="foot-line">© {new Date().getFullYear()} {site.name}</p>
+      <p class="foot-line">Dibuat di Jakarta</p>
+    </div>
+  </footer>
+</Layout>
+
+<script>
+  // Bilah atas sembunyi saat menggulir ke bawah, muncul lagi saat menggulir ke atas.
+  const bar = document.querySelector<HTMLElement>('.bar');
+  if (bar) {
+    let lastY = window.scrollY;
+    let ticking = false;
+    const updateBar = () => {
+      const y = window.scrollY;
+      if (y < 80) {
+        bar.classList.remove('is-hidden');
+      } else if (y > lastY + 4) {
+        bar.classList.add('is-hidden');
+      } else if (y < lastY - 4) {
+        bar.classList.remove('is-hidden');
+      }
+      lastY = y;
+      ticking = false;
+    };
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(updateBar);
+        }
+      },
+      { passive: true }
+    );
+    bar.addEventListener('focusin', () => bar.classList.remove('is-hidden'));
+  }
+
+  // Tiga kartu look berputar: kanan ke tengah, tengah ke kiri, kiri ke kanan.
+  const carousel = document.querySelector<HTMLElement>('[data-hero-carousel]');
+  if (carousel) {
+    const cards = Array.from(carousel.querySelectorAll<HTMLElement>('[data-card]'));
+    const caption = carousel.querySelector<HTMLElement>('[data-hero-caption]');
+    const pause = carousel.querySelector<HTMLButtonElement>('[data-hero-pause]');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let active = 0;
+    let manuallyPaused = reduced.matches;
+    let timer: number | undefined;
+
+    const render = () => {
+      cards.forEach((card, i) => {
+        const role =
+          i === active ? 'center' : i === (active + 1) % cards.length ? 'right' : 'left';
+        card.classList.toggle('is-center', role === 'center');
+        card.classList.toggle('is-right', role === 'right');
+        card.classList.toggle('is-left', role === 'left');
+        card.setAttribute('aria-hidden', String(role !== 'center'));
+      });
+      const current = cards[active];
+      if (caption) caption.textContent = `${current.dataset.label} — ${current.dataset.name}`;
+      if (pause) {
+        pause.textContent = manuallyPaused ? 'Lanjut' : 'Jeda';
+        pause.setAttribute(
+          'aria-label',
+          manuallyPaused ? 'Lanjutkan gerakan otomatis' : 'Jeda gerakan otomatis'
+        );
+      }
+    };
+
+    const stop = () => {
+      if (timer !== undefined) {
+        window.clearInterval(timer);
+        timer = undefined;
+      }
+    };
+    const start = () => {
+      stop();
+      if (manuallyPaused) return;
+      timer = window.setInterval(() => {
+        active = (active + 1) % cards.length;
+        render();
+      }, 5200);
+    };
+
+    pause?.addEventListener('click', () => {
+      manuallyPaused = !manuallyPaused;
+      render();
+      start();
+    });
+    carousel.addEventListener('pointerenter', stop);
+    carousel.addEventListener('pointerleave', start);
+    carousel.addEventListener('focusin', stop);
+    carousel.addEventListener('focusout', (event) => {
+      if (!carousel.contains(event.relatedTarget as Node)) start();
+    });
+    reduced.addEventListener('change', (event) => {
+      manuallyPaused = event.matches;
+      render();
+      start();
+    });
+
+    render();
+    start();
+  }
+
+  // Pilih ukuran → tombol pesan berganti jadi "Pesan ukuran X" dengan pesan WhatsApp yang sudah terisi.
+  document.querySelectorAll<HTMLElement>('[data-product]').forEach((card) => {
+    const link = card.querySelector<HTMLAnchorElement>('[data-order]')!;
+    const text = card.querySelector<HTMLElement>('[data-order-text]')!;
+    const name = card.dataset.product!;
+    const brand = card.dataset.site!;
+    const number = card.dataset.wa!;
+    const chips = card.querySelectorAll<HTMLButtonElement>('[data-size]');
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+        const size = chip.dataset.size!;
+        const msg = `Halo ${brand}, saya mau pesan ${name} ukuran ${size}. Apakah masih tersedia?`;
+        link.href = `https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
+        text.textContent = size === 'Satu ukuran' ? 'Pesan sekarang' : `Pesan ukuran ${size}`;
+        link.classList.add('ready');
+      });
+    });
+  });
+</script>

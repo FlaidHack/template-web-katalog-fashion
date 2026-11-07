@@ -1,0 +1,105 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Bar from '../components/Bar.astro';
+import { site, catalog, products, rupiah, wa } from '../data/site.js';
+
+const title = `${catalog.eyebrow} — ${site.name}`;
+---
+
+<Layout title={title} description={catalog.text}>
+  <Bar />
+
+  <main id="isi">
+    <section class="catalog" aria-labelledby="catalog-h">
+      <header class="catalog-head">
+        <p class="kicker">{catalog.eyebrow}</p>
+        <h2 id="catalog-h">{catalog.heading}</h2>
+        <div class="catalog-side">
+          <p>{catalog.text}</p>
+          <a class="textlink" href="/#ukuran">Cek panduan ukuran</a>
+        </div>
+      </header>
+
+      <div class="catalog-grid">
+        {
+          products.map((p) => (
+            <article
+              class="cat"
+              data-product={p.name}
+              data-wa={site.whatsapp}
+              data-site={site.name}
+            >
+              <figure class="cat-shot">
+                <img
+                  src={p.image}
+                  alt={`Foto untuk ${p.name}`}
+                  loading="lazy"
+                  width="960"
+                  height="1200"
+                />
+              </figure>
+              <div class="cat-meta">
+                <div class="cat-top">
+                  <p class="cat-cat">{p.category}</p>
+                  <p class="price">{rupiah(p.price)}</p>
+                </div>
+                <h3>{p.name}</h3>
+                <p class="detail">{p.detail}</p>
+                <div class="sizes" role="group" aria-label={`Pilih ukuran ${p.name}`}>
+                  {p.sizes.map((s) => {
+                    const out = p.soldOut.includes(s);
+                    return (
+                      <button
+                        type="button"
+                        class="chip"
+                        data-size={s}
+                        aria-pressed="false"
+                        disabled={out}
+                        aria-label={out ? `${s}, habis` : s}
+                      >
+                        {s}
+                      </button>
+                    );
+                  })}
+                </div>
+                <a
+                  class="order"
+                  data-order
+                  href={wa(`Halo ${site.name}, saya mau tanya stok ${p.name}.`)}
+                >
+                  <span data-order-text>Tanya stok</span>
+                </a>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot-lite">
+    <p class="foot-line">© {new Date().getFullYear()} {site.name}</p>
+    <a class="foot-link" href="/">Kembali ke beranda</a>
+  </footer>
+</Layout>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-product]').forEach((card) => {
+    const link = card.querySelector<HTMLAnchorElement>('[data-order]')!;
+    const text = card.querySelector<HTMLElement>('[data-order-text]')!;
+    const name = card.dataset.product!;
+    const brand = card.dataset.site!;
+    const number = card.dataset.wa!;
+    const chips = card.querySelectorAll<HTMLButtonElement>('[data-size]');
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+        const size = chip.dataset.size!;
+        const msg = `Halo ${brand}, saya mau pesan ${name} ukuran ${size}. Apakah masih tersedia?`;
+        link.href = `https://wa.me/${number}?text=${encodeURIComponent(msg)}`;
+        text.textContent = size === 'Satu ukuran' ? 'Pesan sekarang' : `Pesan ukuran ${size}`;
+        link.classList.add('ready');
+      });
+    });
+  });
+</script>

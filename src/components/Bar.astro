@@ -1,0 +1,19 @@
+---
+import { site, wa } from '../data/site.js';
+
+const waLink = wa(`Halo ${site.name}, saya mau tanya koleksi yang tersedia.`);
+---
+
+<header class="bar">
+  <a class="mark" href="/" aria-label={`${site.name}, ke beranda`}>
+    <span class="mark-name">{site.short}</span>
+    <span class="mark-sub">{site.sub}</span>
+  </a>
+  <nav aria-label="Menu utama">
+    <a href="/koleksi">Koleksi</a>
+    <a href="/#tentang" class="hide-s">Tentang</a>
+    <a href="/#ukuran" class="hide-s">Ukuran</a>
+    <a href="/#tanya" class="hide-s">Tanya jawab</a>
+    <a class="btn" href={waLink}>Pesan</a>
+  </nav>
+</header>
